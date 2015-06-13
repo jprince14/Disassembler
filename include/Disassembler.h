@@ -6,7 +6,13 @@ typedef enum {
 } file_open_codes;
 
 typedef enum {
-	success, missing_arg_2, filedoesnotexist, readerror
+	success,
+	missing_arg_2,
+	filedoesnotexist,
+	readerror,
+	parsingerror,
+	badopcode,
+	endoffile
 
 } errorcode;
 
@@ -17,6 +23,9 @@ typedef enum {
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
+
+
+errorcode readopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer);
 
 #endif /* DISASSEMBLER_H_ */
 

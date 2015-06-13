@@ -3,19 +3,21 @@
 #include "../include/Disassembler.h"
 #include "../include/parse.h"
 
-size_t readopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer) {
+errorcode readopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer) {
 	//Read one byte
+	errorcode returnflag;
+
 	size_t size = fread(buffer, 1, 1, IN_fp);
 
 //	printf("size = %d\n", size);
 	if (size == 0) {
 		printf("END of File Reached\n");
-		return false;
+		return endoffile;
 	}
 	printf("Buffer = %02x\n", buffer[0]);
-	parseopcode(IN_fp, OUT_fp, buffer);
+	returnflag = parseopcode(IN_fp, OUT_fp, buffer);
 
-	return size;
+	return returnflag;
 }
 
 int main(int argc, char *argv[]) {
@@ -38,12 +40,12 @@ int main(int argc, char *argv[]) {
 	FILE *outputfp;
 	outputfp = fopen("outputfile.txt", "w");
 
-	bool runningflag;
+	errorcode runningflag;
 
 	do {
 		runningflag = readopcode(inputfp, outputfp, buffer);
 
-	} while (runningflag == true);
+	} while (runningflag == success);
 
 //	int x = buffer[0];
 //	printf("int = %x\n", x);
