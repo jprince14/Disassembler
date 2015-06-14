@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 void shared3partparse(filestruct files, u8 opcode, char* opcodename,
-		opcodetype type) ;
+		opcodetype type, modrmm inputmodrmm) ;
 
 extern const char* registerstrings[];
 

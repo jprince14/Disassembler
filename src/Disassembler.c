@@ -55,9 +55,6 @@ int main(int argc, char *argv[]) {
 
 	} while (runningflag == success);
 
-//	int x = buffer[0];
-//	printf("int = %x\n", x);
-
 	int returnvalue;
 
 	if (runningflag == endoffile) {
