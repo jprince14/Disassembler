@@ -1,0 +1,90 @@
+//This will work for ADD, AND, CMP, MOV, OR and XOR
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "../include/and.h"
+#include "../include/parse.h"
+#include "../include/Disassembler.h"
+
+void shared3partparse(filestruct files, u8 opcode, char* opcodename,
+		opcodetype type) {
+
+	//return starts with success and becomes an error if there is one
+	char printbuffer[50];
+	char part2[20];
+	char part3[20];
+	modrmm parsedmodrmm;
+	size_t size;
+	u8 modrm;
+
+//	eax_imm32, rm32_imm32, rm32_imm8, rm32_r32, r32_rm32
+	printf("location1\n");
+	if (type == eax_imm32) {
+
+		u32 imm32;
+		size_t size = fread(&imm32, 1, 4, files.in);
+		readerrorcheck(size, 4, files);
+
+		char printbuffer[50];
+		snprintf(printbuffer, 40, "%s, eax, 0x%x\n", opcodename, imm32);
+		fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		printf("location2\n");
+	} else {
+		printf("location3\n");
+		//Read the MODR/M byte
+		size = fread(&modrm, 1, 1, files.in);
+		readerrorcheck(size, 1, files);
+
+		parsemodrmm(modrm, files, part2, sizeof(part2));
+		printf("location4\n");
+
+		if (type == rm32_imm32) {
+			printf("location5\n");
+
+			u32 imm32;
+			size = fread(&imm32, 1, 4, files.in);
+			readerrorcheck(size, 4, files);
+			snprintf(part3, 20, "0x%x", imm32);
+
+			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+			printf("location6\n");
+
+		} else if (type == rm32_imm8) {
+			printf("location7\n");
+
+			u8 imm8;
+			size = fread(&imm8, 1, 1, files.in);
+			readerrorcheck(size, 1, files);
+			snprintf(part3, 20, "0x%x", imm8);
+
+			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+
+			printf("location8\n");
+
+		} else if (type == rm32_r32) {
+			printf("location9\n");
+
+			snprintf(part3, 20, "%s", registerstrings[parsedmodrmm.modrm_Reg]);
+
+			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+			printf("location10\n");
+
+		} else if (type == r32_rm32) {
+			printf("location11\n");
+			snprintf(part3, 20, "%s", registerstrings[parsedmodrmm.modrm_Reg]);
+
+			//parts 2 and 3 are flipped for this one
+			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part3, part2);
+			printf("location12\n");
+		} else {
+			//Invalid type received
+			cleanupandclose(files, badopcode);
+		}
+		printf("location13\n");
+
+		fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		printf("location14\n");
+	}
+}
+

@@ -29,8 +29,6 @@ typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
 
-static const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP",
-		"EBP", "ESI", "EDI" };
 
 errorcode readopcode(filestruct files);
 

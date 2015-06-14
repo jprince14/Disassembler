@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include "Disassembler.h"
 
-void calladd_imm32_to_eax(filestruct files, u8 opcode);
 
 void calladd_rm32(filestruct files, u8 opcode);
+
+extern const char* registerstrings[];
 
 #endif /* ADD_H_ */

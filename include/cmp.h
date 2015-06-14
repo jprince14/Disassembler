@@ -3,5 +3,6 @@
 
 #include "Disassembler.h"
 
+extern const char* registerstrings[];
 
 #endif /* CMP_H_ */

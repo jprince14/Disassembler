@@ -29,7 +29,7 @@ void calladd_rm32(filestruct files, u8 opcode) {
 	size = fread(&modrm, 1, 1, files.in);
 	readerrorcheck(size, 1, files);
 
-	parsedmodrmm = parsemodrmm(modrm);
+//	parsedmodrmm = parsemodrmm(modrm, files);
 
 	printf("location1\n");
 
@@ -97,11 +97,5 @@ void calladd_rm32(filestruct files, u8 opcode) {
 
 	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
 
-}
-
-errorcode calladd_imm8_to_rm32(filestruct files, u8 buffer) {
-	errorcode returnflag = success;
-
-	return returnflag;
 }
 

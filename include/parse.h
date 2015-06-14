@@ -20,8 +20,13 @@ typedef struct {
 	registers modrm_RM_Reg;
 } modrmm;
 
+typedef enum {
+	eax_imm32, rm32_imm32, rm32_imm8, rm32_r32, r32_rm32
+
+} opcodetype;
+
 errorcode parseopcode(filestruct files, u8 opcode);
-modrmm parsemodrmm(u8 input);
+char* parsemodrmm(u8 input, filestruct files, char* part2, int arraysize);
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
 void cleanupandclose(filestruct files, errorcode code);
 void displayerroroutput(errorcode code);

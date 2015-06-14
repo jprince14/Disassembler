@@ -3,6 +3,11 @@
 #include "../include/Disassembler.h"
 #include "../include/parse.h"
 
+
+const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP",
+		"EBP", "ESI", "EDI" };
+
+
 errorcode readopcode(filestruct files) {
 	//Read one byte
 	errorcode returnflag;
@@ -45,23 +50,16 @@ int main(int argc, char *argv[]) {
 
 	} while (runningflag == success);
 
-
-
 //	int x = buffer[0];
 //	printf("int = %x\n", x);
 
-
-
-
-
 	int returnvalue;
 
-
-	if (runningflag == endoffile){
+	if (runningflag == endoffile) {
 		printf("Successfully disassembled file\n");
 		cleanupandclose(files, success);
 		returnvalue = EXIT_SUCCESS;
-	}else{
+	} else {
 		cleanupandclose(files, runningflag);
 		return -1;
 	}

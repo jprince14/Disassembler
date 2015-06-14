@@ -3,6 +3,7 @@
 #include "../include/parse.h"
 #include "../include/Disassembler.h"
 #include "../include/add.h"
+#include "../include/and.h"
 
 //a short int is 2 bytes and code is only 1  byte
 errorcode parseopcode(filestruct files, u8 opcode) {
@@ -10,16 +11,19 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 	errorcode returnvalue = success;
 	switch (opcode) {
 	case 0x05: //add eax, imm32
-		calladd_imm32_to_eax(files, opcode);
+		shared3partparse(files, opcode, "add", eax_imm32);
 		break;
 	case 0x81: //add r/m32, imm32
-			   //fall through
+		shared3partparse(files, opcode, "add", rm32_imm32);
+		break;
 	case 0x83: //add r/m32, imm8
-			   //fall through
+		shared3partparse(files, opcode, "add", rm32_imm8);
+		break;
 	case 0x01: //add r/m32, r32
-		//fall through
+		shared3partparse(files, opcode, "add", rm32_r32);
+		break;
 	case 0x03: //add r32, r/m32
-		calladd_rm32(files, opcode);
+		shared3partparse(files, opcode, "add", r32_rm32);
 		break;
 
 	default:
@@ -30,9 +34,10 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 	return returnvalue;
 }
 
-modrmm parsemodrmm(u8 input) {
+char* parsemodrmm(u8 input, filestruct files, char* part2, int arraysize) {
 
 	modrmm result;
+	size_t size;
 
 	//Parse the MOD
 	//AND with 0b11000000 to get the first 2 bytes
@@ -42,7 +47,27 @@ modrmm parsemodrmm(u8 input) {
 
 	result.modrm_RM_Reg = (input & 0b00000111);
 
-	return result;
+	if (result.modrm_MOD == mod0) {
+		snprintf(part2, arraysize, "[%s]",
+				registerstrings[result.modrm_RM_Reg]);
+	} else if (result.modrm_MOD == mod1) {
+		u8 byte;
+		size = fread(&byte, 1, 1, files.in);
+		readerrorcheck(size, 1, files);
+		snprintf(part2, arraysize, "[%s + 0x%x]",
+				registerstrings[result.modrm_RM_Reg], byte);
+
+	} else if (result.modrm_MOD == mod2) {
+		u32 dword;
+		size = fread(&dword, 1, 4, files.in);
+		readerrorcheck(size, 4, files);
+		snprintf(part2, arraysize, "[%s + 0x%x]",
+				registerstrings[result.modrm_RM_Reg], dword);
+	} else if (result.modrm_MOD == mod3) {
+		snprintf(part2, arraysize, "%s", registerstrings[result.modrm_RM_Reg]);
+	}
+
+	return part2;
 }
 
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files) {

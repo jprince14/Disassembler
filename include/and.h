@@ -2,6 +2,13 @@
 #define AND_H_
 
 #include "Disassembler.h"
+#include "parse.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+void shared3partparse(filestruct files, u8 opcode, char* opcodename,
+		opcodetype type) ;
+
+extern const char* registerstrings[];
 
 #endif /* AND_H_ */
