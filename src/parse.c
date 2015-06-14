@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include "../include/parse.h"
 #include "../include/Disassembler.h"
-#include "../include/add.h"
-#include "../include/and.h"
+#include "../include/similaropcodes.h"
 
 //a short int is 2 bytes and code is only 1  byte
 errorcode parseopcode(filestruct files, u8 opcode) {

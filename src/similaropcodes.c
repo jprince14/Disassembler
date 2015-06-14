@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/and.h"
+#include "../include/similaropcodes.h"
 #include "../include/parse.h"
 #include "../include/Disassembler.h"
 
