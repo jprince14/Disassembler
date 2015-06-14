@@ -25,9 +25,11 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 		u32 imm32;
 		size_t size = fread(&imm32, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
+		instructionbytecount += 4;
 
 		char printbuffer[50];
-		snprintf(printbuffer, 40, "%s, eax, 0x%x\n", opcodename, imm32);
+		snprintf(printbuffer, 40, "%x:\t%s, eax, 0x%x\n", totalbytecount,
+				opcodename, imm32);
 		fwrite(printbuffer, 1, strlen(printbuffer), files.out);
 		printf("location2\n");
 	} else {
@@ -35,8 +37,11 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 		//Read the MODR/M byte
 		size = fread(&modrm, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
+		instructionbytecount += 1;
 
-		parsemodrmm(modrm, files, part2, sizeof(part2));
+		printf("modrm = 0x%x\n", modrm);
+
+		parsedmodrmm = parsemodrmm(modrm, files, part2, sizeof(part2));
 		printf("location4\n");
 
 		if (type == rm32_imm32) {
@@ -45,9 +50,11 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 			u32 imm32;
 			size = fread(&imm32, 1, 4, files.in);
 			readerrorcheck(size, 4, files);
+			instructionbytecount += 4;
 			snprintf(part3, 20, "0x%x", imm32);
 
-			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+			snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+					opcodename, part2, part3);
 			printf("location6\n");
 
 		} else if (type == rm32_imm8) {
@@ -56,9 +63,11 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 			u8 imm8;
 			size = fread(&imm8, 1, 1, files.in);
 			readerrorcheck(size, 1, files);
+			instructionbytecount += 1;
 			snprintf(part3, 20, "0x%x", imm8);
 
-			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+			snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+					opcodename, part2, part3);
 
 			printf("location8\n");
 
@@ -67,7 +76,10 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 
 			snprintf(part3, 20, "%s", registerstrings[parsedmodrmm.modrm_Reg]);
 
-			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part2, part3);
+			printf("part 3 = %s, modrm_reg = 0x%x\n", part3, parsedmodrmm.modrm_Reg);
+
+			snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+					opcodename, part2, part3);
 			printf("location10\n");
 
 		} else if (type == r32_rm32) {
@@ -75,7 +87,8 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 			snprintf(part3, 20, "%s", registerstrings[parsedmodrmm.modrm_Reg]);
 
 			//parts 2 and 3 are flipped for this one
-			snprintf(printbuffer, 50, "%s %s, %s\n", opcodename, part3, part2);
+			snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+					opcodename, part3, part2);
 			printf("location12\n");
 		} else {
 			//Invalid type received

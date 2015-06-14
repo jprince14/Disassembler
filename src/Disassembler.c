@@ -6,13 +6,15 @@
 
 const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP",
 		"EBP", "ESI", "EDI" };
-
+u32 totalbytecount;
+u32	instructionbytecount;
 
 errorcode readopcode(filestruct files) {
 	//Read one byte
 	errorcode returnflag;
 	u8 opcode;
 
+	instructionbytecount += 1;
 	size_t size = fread(&opcode, 1, 1, files.in);
 
 	if (size == 0) {
@@ -42,6 +44,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	files.out = fopen(argv[2], "w");
+
+	totalbytecount = 0;
+	instructionbytecount = 0;
 
 	errorcode runningflag;
 

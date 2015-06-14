@@ -30,10 +30,13 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 		returnvalue = badopcode;
 	}
 
+	totalbytecount += instructionbytecount;
+	instructionbytecount = 0;
+
 	return returnvalue;
 }
 
-char* parsemodrmm(u8 input, filestruct files, char* part2, int arraysize) {
+modrmm parsemodrmm(u8 input, filestruct files, char* part2, int part2size) {
 
 	modrmm result;
 	size_t size;
@@ -47,26 +50,28 @@ char* parsemodrmm(u8 input, filestruct files, char* part2, int arraysize) {
 	result.modrm_RM_Reg = (input & 0b00000111);
 
 	if (result.modrm_MOD == mod0) {
-		snprintf(part2, arraysize, "[%s]",
+		snprintf(part2, part2size, "[%s]",
 				registerstrings[result.modrm_RM_Reg]);
 	} else if (result.modrm_MOD == mod1) {
 		u8 byte;
 		size = fread(&byte, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
-		snprintf(part2, arraysize, "[%s + 0x%x]",
+		instructionbytecount += 1;
+		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[result.modrm_RM_Reg], byte);
 
 	} else if (result.modrm_MOD == mod2) {
 		u32 dword;
 		size = fread(&dword, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
-		snprintf(part2, arraysize, "[%s + 0x%x]",
+		instructionbytecount += 4;
+		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[result.modrm_RM_Reg], dword);
 	} else if (result.modrm_MOD == mod3) {
-		snprintf(part2, arraysize, "%s", registerstrings[result.modrm_RM_Reg]);
+		snprintf(part2, part2size, "%s", registerstrings[result.modrm_RM_Reg]);
 	}
 
-	return part2;
+	return result;
 }
 
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files) {

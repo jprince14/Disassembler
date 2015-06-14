@@ -26,9 +26,12 @@ typedef enum {
 } opcodetype;
 
 errorcode parseopcode(filestruct files, u8 opcode);
-char* parsemodrmm(u8 input, filestruct files, char* part2, int arraysize);
+modrmm parsemodrmm(u8 input, filestruct files, char* part2, int part2size);
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
 void cleanupandclose(filestruct files, errorcode code);
 void displayerroroutput(errorcode code);
+
+extern u32 totalbytecount;
+extern u32 instructionbytecount;
 
 #endif /* PARSE_H_ */

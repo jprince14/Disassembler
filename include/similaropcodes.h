@@ -11,4 +11,7 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 
 extern const char* registerstrings[];
 
+extern u32 totalbytecount;
+extern u32	instructionbytecount;
+
 #endif /* AND_H_ */
