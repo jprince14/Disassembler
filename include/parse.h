@@ -20,8 +20,10 @@ typedef struct {
 	registers modrm_RM_Reg;
 } modrmm;
 
-errorcode parseopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer);
+errorcode parseopcode(filestruct files, u8 opcode);
 modrmm parsemodrmm(u8 input);
-errorcode readerrorcheck(size_t sizeread, size_t expectedsize);
+void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
+void cleanupandclose(filestruct files, errorcode code);
+void displayerroroutput(errorcode code);
 
 #endif /* PARSE_H_ */

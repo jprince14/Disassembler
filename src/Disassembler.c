@@ -3,19 +3,19 @@
 #include "../include/Disassembler.h"
 #include "../include/parse.h"
 
-errorcode readopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer) {
+errorcode readopcode(filestruct files) {
 	//Read one byte
 	errorcode returnflag;
+	u8 opcode;
 
-	size_t size = fread(buffer, 1, 1, IN_fp);
+	size_t size = fread(&opcode, 1, 1, files.in);
 
-//	printf("size = %d\n", size);
 	if (size == 0) {
 		printf("END of File Reached\n");
 		return endoffile;
 	}
-	printf("Buffer = %02x\n", buffer[0]);
-	returnflag = parseopcode(IN_fp, OUT_fp, buffer);
+	printf("Buffer = %02x\n", opcode);
+	returnflag = parseopcode(files, opcode);
 
 	return returnflag;
 }
@@ -27,30 +27,45 @@ int main(int argc, char *argv[]) {
 		return (missing_arg_2);
 	}
 
-	FILE *inputfp;
+	filestruct files;
 
-	u8 buffer[10];
-	inputfp = fopen(argv[1], "rb");
+	files.in = fopen(argv[1], "rb");
 
-	if (inputfp == NULL) {
+	if (files.in == NULL) {
 		fprintf(stderr, "File %s does not exist", argv[1]);
 		return (filedoesnotexist);
 	}
 
-	FILE *outputfp;
-	outputfp = fopen("outputfile.txt", "w");
+	files.out = fopen(argv[2], "w");
 
 	errorcode runningflag;
 
 	do {
-		runningflag = readopcode(inputfp, outputfp, buffer);
+		runningflag = readopcode(files);
 
 	} while (runningflag == success);
+
+
 
 //	int x = buffer[0];
 //	printf("int = %x\n", x);
 
-	fclose(inputfp);
-	return EXIT_SUCCESS;
+
+
+
+
+	int returnvalue;
+
+
+	if (runningflag == endoffile){
+		printf("Successfully disassembled file\n");
+		cleanupandclose(files, success);
+		returnvalue = EXIT_SUCCESS;
+	}else{
+		cleanupandclose(files, runningflag);
+		return -1;
+	}
+
+	return returnvalue;
 }
 

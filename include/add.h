@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include "Disassembler.h"
 
-errorcode calladd_imm32_to_eax(FILE* IN_fp, FILE* OUT_fp, u8* buffer);
+void calladd_imm32_to_eax(filestruct files, u8 opcode);
 
-errorcode calladd_imm32_to_rm32(FILE* IN_fp, FILE* OUT_fp, u8* buffer);
-
+void calladd_rm32(filestruct files, u8 opcode);
 
 #endif /* ADD_H_ */

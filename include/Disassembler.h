@@ -20,13 +20,19 @@ typedef enum {
 	false, true
 } bool;
 
+typedef struct {
+	FILE* in;
+	FILE* out;
+} filestruct;
+
 typedef unsigned char u8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
 
-static const char* registerstrings[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+static const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP",
+		"EBP", "ESI", "EDI" };
 
-errorcode readopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer);
+errorcode readopcode(filestruct files);
 
 #endif /* DISASSEMBLER_H_ */
 

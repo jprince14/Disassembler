@@ -5,22 +5,28 @@
 #include "../include/add.h"
 
 //a short int is 2 bytes and code is only 1  byte
-errorcode parseopcode(FILE* IN_fp, FILE* OUT_fp, u8* buffer) {
+errorcode parseopcode(filestruct files, u8 opcode) {
 
-	errorcode returnvalue;
-
-	switch (buffer[0]) {
-	case 0x05:
-		returnvalue = calladd_imm32_to_eax(IN_fp, OUT_fp, buffer);
+	errorcode returnvalue = success;
+	switch (opcode) {
+	case 0x05: //add eax, imm32
+		calladd_imm32_to_eax(files, opcode);
 		break;
-	case 0x81:
-		returnvalue = calladd_imm32_to_rm32(IN_fp, OUT_fp, buffer);
+	case 0x81: //add r/m32, imm32
+			   //fall through
+	case 0x83: //add r/m32, imm8
+			   //fall through
+	case 0x01: //add r/m32, r32
+		//fall through
+	case 0x03: //add r32, r/m32
+		calladd_rm32(files, opcode);
 		break;
 
 	default:
-		fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n", buffer[0]);
+		fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n", opcode);
 		returnvalue = badopcode;
 	}
+
 	return returnvalue;
 }
 
@@ -39,13 +45,28 @@ modrmm parsemodrmm(u8 input) {
 	return result;
 }
 
-errorcode readerrorcheck(size_t sizeread, size_t expectedsize) {
-	errorcode returnflag;
+void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files) {
 	if (sizeread != expectedsize) {
-		fprintf(stderr, "Either End of File or Error Reading\n");
-		returnflag = parsingerror;
+		fprintf(stderr, "Error Size Read in was not size expected\n");
+		cleanupandclose(files, parsingerror);
 	}
-	returnflag = success;
-	return returnflag;
+}
+
+void cleanupandclose(filestruct files, errorcode code) {
+//	char errorstring[] = "\nERROR with Disassembly\n";
+
+	fclose(files.in);
+	fclose(files.out);
+	if (code != success) {
+		displayerroroutput(code);
+	}
+	exit(-1);
+
+}
+
+void displayerroroutput(errorcode code) {
+	printf("COMEBACKHERE\n");
+	//display to screen adn print to file
+
 }
 
