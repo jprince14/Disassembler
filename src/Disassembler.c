@@ -18,10 +18,10 @@ errorcode readopcode(filestruct files) {
 	size_t size = fread(&opcode, 1, 1, files.in);
 
 	if (size == 0) {
-		printf("END of File Reached\n");
+//		printf("END of File Reached\n");
 		return endoffile;
 	}
-	printf("Buffer = %02x\n", opcode);
+//	printf("Buffer = %02x\n", opcode);
 	returnflag = parseopcode(files, opcode);
 
 	return returnflag;

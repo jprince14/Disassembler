@@ -8,6 +8,7 @@
 
 void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 		opcodetype type, modrmm inputmodrmm) ;
+void reg4bytes(filestruct files, u8 opcode, char* opcodename);
 
 extern const char* registerstrings[];
 
