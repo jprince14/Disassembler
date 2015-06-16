@@ -27,6 +27,9 @@ void shared3partparse(filestruct files, u8 opcode, char* opcodename,
 		snprintf(printbuffer, 40, "%x:\t%s, eax, 0x%x\n", totalbytecount,
 				opcodename, imm32);
 		fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+#if printtoscreen
+		printf("%s", printbuffer);
+#endif
 	} else {
 
 		getpart2(inputmodrmm, files, part2, sizeof(part2));
