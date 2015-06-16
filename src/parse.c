@@ -22,7 +22,7 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 	//ADD
 	case 0x05: //add eax, imm32
 //TODO: passing in parsedmodrmm which is empty, dont really need it but cant think of a better way at the moment
-		shared3partparse(files, opcode, "add", eax_imm32, parsedmodrmm);
+		sharednomodrmneeded(files, opcode, "add", eax_imm32);
 		break;
 	case 0x81:
 		parsedmodrmm = getandparsemodrmm(files);
@@ -76,7 +76,7 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 		//AND
 	case 0x25:
 		//and eax, imm32
-		shared3partparse(files, opcode, "and", eax_imm32, parsedmodrmm);
+		sharednomodrmneeded(files, opcode, "and", eax_imm32);
 		break;
 	case 0x21:
 		//and r/m32, r32
@@ -90,7 +90,7 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 		break;
 	case 0x3d:
 		//cmp eax, imm32
-		shared3partparse(files, opcode, "cmp", eax_imm32, parsedmodrmm);
+		sharednomodrmneeded(files, opcode, "cmp", eax_imm32);
 		break;
 	case 0x39:
 		//cmp r/m32, r32

@@ -7,12 +7,13 @@
 #include <stdlib.h>
 
 void shared3partparse(filestruct files, u8 opcode, char* opcodename,
-		opcodetype type, modrmm inputmodrmm) ;
+		opcodetype type, modrmm inputmodrmm);
 void reg4bytes(filestruct files, u8 opcode, char* opcodename);
+void sharednomodrmneeded(filestruct files, u8 opcode, char* opcodename,
+		opcodetype type);
 
 extern const char* registerstrings[];
-
 extern u32 totalbytecount;
-extern u32	instructionbytecount;
+extern u32 instructionbytecount;
 
 #endif /* AND_H_ */
