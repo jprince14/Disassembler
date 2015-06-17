@@ -19,22 +19,27 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 	modrmm parsedmodrmm;
 
 	switch (opcode) {
-	//ADD
-	case 0x05: //add eax, imm32
-//TODO: passing in parsedmodrmm which is empty, dont really need it but cant think of a better way at the moment
-		sharednomodrmneeded(files, opcode, "add", eax_imm32);
+	case 0x05:
+		//add eax, imm32
+		sharednomodrmneeded(files, "add", opcode_eax_imm32);
 		break;
 	case 0x81:
 		parsedmodrmm = getandparsemodrmm(files);
 		if (parsedmodrmm.modrm_Reg == 0x0) {
 			//add r/m32, imm32
-			shared3partparse(files, opcode, "add", rm32_imm32, parsedmodrmm);
+			shared3partparse(files, "add", opcode_rm32_imm32, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x1) {
+			//or r/m32, imm32
+			shared3partparse(files, "or", opcode_rm32_imm32, parsedmodrmm);
 		} else if (parsedmodrmm.modrm_Reg == 0x4) {
 			//and r/m32, imm32
-			shared3partparse(files, opcode, "and", rm32_imm32, parsedmodrmm);
+			shared3partparse(files, "and", opcode_rm32_imm32, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x6) {
+			//xor r/m32, imm32
+			shared3partparse(files, "xor", opcode_rm32_imm32, parsedmodrmm);
 		} else if (parsedmodrmm.modrm_Reg == 0x7) {
 			//cmp r/m32, imm32
-			shared3partparse(files, opcode, "cmp", rm32_imm32, parsedmodrmm);
+			shared3partparse(files, "cmp", opcode_rm32_imm32, parsedmodrmm);
 		} else {
 			returnvalue = badopcode;
 		}
@@ -43,13 +48,19 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 		parsedmodrmm = getandparsemodrmm(files);
 		if (parsedmodrmm.modrm_Reg == 0x0) {
 			//add r/m32, imm8
-			shared3partparse(files, opcode, "add", rm32_imm8, parsedmodrmm);
+			shared3partparse(files, "add", opcode_rm32_imm8, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x1) {
+			//or r/m32, imm8
+			shared3partparse(files, "or", opcode_rm32_imm8, parsedmodrmm);
 		} else if (parsedmodrmm.modrm_Reg == 0x4) {
 			//and r/m32, imm8
-			shared3partparse(files, opcode, "and", rm32_imm8, parsedmodrmm);
+			shared3partparse(files, "and", opcode_rm32_imm8, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x6) {
+			//xor r/m32, imm8
+			shared3partparse(files, "xor", opcode_rm32_imm8, parsedmodrmm);
 		} else if (parsedmodrmm.modrm_Reg == 0x7) {
 			//cmp r/m32, imm8
-			shared3partparse(files, opcode, "cmp", rm32_imm8, parsedmodrmm);
+			shared3partparse(files, "cmp", opcode_rm32_imm8, parsedmodrmm);
 		} else {
 			returnvalue = badopcode;
 		}
@@ -58,7 +69,7 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 		parsedmodrmm = getandparsemodrmm(files);
 		if (parsedmodrmm.modrm_Reg == 0x0) {
 			//mov r/m32, imm32
-			shared3partparse(files, opcode, "mov", rm32_imm32, parsedmodrmm);
+			shared3partparse(files, "mov", opcode_rm32_imm32, parsedmodrmm);
 		} else {
 			returnvalue = badopcode;
 		}
@@ -66,53 +77,200 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 	case 0x01:
 		//add r/m32, r32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "add", rm32_r32, parsedmodrmm);
+		shared3partparse(files, "add", opcode_rm32_r32, parsedmodrmm);
 		break;
 	case 0x03:
 		//add r32, r/m32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "add", r32_rm32, parsedmodrmm);
+		shared3partparse(files, "add", opcode_r32_rm32, parsedmodrmm);
 		break;
 		//AND
 	case 0x25:
 		//and eax, imm32
-		sharednomodrmneeded(files, opcode, "and", eax_imm32);
+		sharednomodrmneeded(files, "and", opcode_eax_imm32);
 		break;
 	case 0x21:
 		//and r/m32, r32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "and", rm32_r32, parsedmodrmm);
+		shared3partparse(files, "and", opcode_rm32_r32, parsedmodrmm);
 		break;
 	case 0x23:
 		//add r32, r/m32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "and", r32_rm32, parsedmodrmm);
+		shared3partparse(files, "and", opcode_r32_rm32, parsedmodrmm);
 		break;
 	case 0x3d:
 		//cmp eax, imm32
-		sharednomodrmneeded(files, opcode, "cmp", eax_imm32);
+		sharednomodrmneeded(files, "cmp", opcode_eax_imm32);
 		break;
 	case 0x39:
 		//cmp r/m32, r32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "cmp", rm32_r32, parsedmodrmm);
+		shared3partparse(files, "cmp", opcode_rm32_r32, parsedmodrmm);
 		break;
 	case 0x3B:
 		//cmp r32, r/m32
-		shared3partparse(files, opcode, "cmp", r32_rm32, parsedmodrmm);
+		shared3partparse(files, "cmp", opcode_r32_rm32, parsedmodrmm);
 		break;
 	case 0x89:
 		//mov r/m32, r32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "mov", rm32_r32, parsedmodrmm);
+		shared3partparse(files, "mov", opcode_rm32_r32, parsedmodrmm);
 		break;
 	case 0x8B:
 		//mov r32, r/m32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, opcode, "mov", r32_rm32, parsedmodrmm);
+		shared3partparse(files, "mov", opcode_r32_rm32, parsedmodrmm);
+		break;
+	case 0x0D:
+		//or eax, imm32
+		sharednomodrmneeded(files, "or", opcode_eax_imm32);
+		break;
+	case 0x09:
+		//or r/m32, r32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "or", opcode_rm32_r32, parsedmodrmm);
+		break;
+	case 0x0B:
+		//or r32, r/m32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "or", opcode_r32_rm32, parsedmodrmm);
+		break;
+	case 0x35:
+		//xor eax, imm32
+		sharednomodrmneeded(files, "xor", opcode_eax_imm32);
+		break;
+	case 0x31:
+		//xor r/m32, r32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "xor", opcode_rm32_r32, parsedmodrmm);
+		break;
+	case 0x33:
+		//xor r32, r/m32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "xor", opcode_r32_rm32, parsedmodrmm);
+		break;
+	case 0x90:
+		//nop
+		sharedbasicInstruction(files, "nop");
+		break;
+	case 0x0F:
+		//nop r/m32 = 0F 1F /0
+		returnvalue = shared2plusbyteopcode(files, opcode);
+		break;
+	case 0x8F:
+		parsedmodrmm = getandparsemodrmm(files);
+		if (parsedmodrmm.modrm_Reg == 0x0) {
+			//pop r/m32
+			shared2partparse(files, "pop", parsedmodrmm);
+		} else {
+			returnvalue = badopcode;
+		}
+		break;
+	case 0xF3:
+		//popcnt = F3 0F B8 /r
+		returnvalue = shared2plusbyteopcode(files, opcode);
+		break;
+	case 0xFF:
+		parsedmodrmm = getandparsemodrmm(files);
+		if (parsedmodrmm.modrm_Reg == 0x0) {
+			//inc r/m32
+			shared2partparse(files, "inc", parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x1) {
+			//dec r/m32
+			shared2partparse(files, "dec", parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x6) {
+			//push r/m32
+			shared2partparse(files, "push", parsedmodrmm);
+		} else {
+			returnvalue = badopcode;
+		}
+		break;
+	case 0x6A:
+		//push imm8
+		sharednomodrmneeded(files, "push", opcode_imm8);
+		break;
+	case 0x68:
+		//push imm32
+		sharednomodrmneeded(files, "push", opcode_imm32);
+		break;
+	case 0xC3:
+		//retn (listed as ret in intel manual)
+		//Near return
+		sharedbasicInstruction(files, "ret");
+		break;
+	case 0xCB:
+		//retn (listed as ret in intel manual)
+		//Far return
+		sharedbasicInstruction(files, "ret");
+		break;
+	case 0xCA:
+		//retn imm16 (listed as ret in intel manual)
+		sharednomodrmneeded(files, "ret", opcode_imm16);
+		break;
+	case 0xA9:
+		//text eax, imm32
+		sharednomodrmneeded(files, "retn", opcode_imm32);
+		break;
+	case 0xF7:
+		parsedmodrmm = getandparsemodrmm(files);
+		if (parsedmodrmm.modrm_Reg == 0x0) {
+			//test r/m32, imm32
+			shared3partparse(files, "test", opcode_rm32_imm32, parsedmodrmm);
+		} else {
+			returnvalue = badopcode;
+		}
+		break;
+	case 0x85:
+		//test r/m32, r32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "test", opcode_rm32_r32, parsedmodrmm);
+		break;
+	case 0xD1:
+		parsedmodrmm = getandparsemodrmm(files);
+		if (parsedmodrmm.modrm_Reg == 0x4) {
+			//sal r/m32, 1 /4
+			//TODO: What to do about shl?
+			//NOTE: opcodes for "sal r/m32, 1" and "shl r/m32, 1" are the same
+			shared3partparse(files, "sal", opcode_rm32_1, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x5) {
+			//shr r/m32, 1
+			shared3partparse(files, "shr", opcode_rm32_1, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x7) {
+			//sar r/m32, 1
+			shared3partparse(files, "sar", opcode_rm32_1, parsedmodrmm);
+		} else {
+			returnvalue = badopcode;
+		}
+		break;
+	case 0xC1:
+		parsedmodrmm = getandparsemodrmm(files);
+		if (parsedmodrmm.modrm_Reg == 0x4) {
+			//sal r/m32, imm8 /4
+			//TODO: What to do about shl?
+			//NOTE: opcodes for "sal r/m32, imm8" and "shl r/m32, imm8" are the same
+			shared3partparse(files, "sal", opcode_rm32_imm8, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x5) {
+			//shr r/m32, imm8
+			shared3partparse(files, "shr", opcode_rm32_imm8, parsedmodrmm);
+		} else if (parsedmodrmm.modrm_Reg == 0x7) {
+			//sar r/m32, imm8
+			shared3partparse(files, "sar", opcode_rm32_imm8, parsedmodrmm);
+		} else {
+			returnvalue = badopcode;
+		}
+		break;
+	case 0xCC:
+		//int 3
+		sharedbasicInstruction(files, "int 3");
+		break;
+	case 0xCD:
+		//int imm8
+		sharednomodrmneeded(files, "int", opcode_imm8);
 		break;
 	default:
 		match = false;
+		break;
 		//try more options below
 	}
 
@@ -122,9 +280,20 @@ errorcode parseopcode(filestruct files, u8 opcode) {
 			//mov r32, imm32
 			//This matches the mov eax, imm32 for the assignment but adds more functionality
 			reg4bytes(files, opcode, "mov");
+		} else if ((opcode & 0x58) == 0x58) {
+			//pop r32
+			registerinopcode(files, opcode, "pop");
+		} else if ((opcode & 0x50) == 0x50) {
+			//push r32
+			registerinopcode(files, opcode, "push");
+		} else if ((opcode & 0x48) == 0x48) {
+			//dec r32
+			registerinopcode(files, opcode, "dec");
+		} else if ((opcode & 0x40) == 0x40) {
+			//inc r32
+			registerinopcode(files, opcode, "inc");
 		} else {
 			//There were no matches in the switch or above so its a unknown opcode
-
 			fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n", opcode);
 			returnvalue = badopcode;
 		}

@@ -3,7 +3,6 @@
 
 #include "Disassembler.h"
 
-
 //For debugging,used to print the disassembled code to the screen
 #define printtoscreen 1
 
@@ -25,7 +24,15 @@ typedef struct {
 } modrmm;
 
 typedef enum {
-	eax_imm32, rm32_imm32, rm32_imm8, rm32_r32, r32_rm32
+	opcode_eax_imm32,
+	opcode_imm32,
+	opcode_imm16,
+	opcode_imm8,
+	opcode_rm32_imm32,
+	opcode_rm32_imm8,
+	opcode_rm32_r32,
+	opcode_r32_rm32,
+	opcode_rm32_1
 
 } opcodetype;
 
