@@ -7,7 +7,7 @@ typedef enum {
 
 typedef enum {
 	success,
-	missing_arg_2,
+	missing_arg,
 	filedoesnotexist,
 	readerror,
 	parsingerror,
@@ -20,9 +20,14 @@ typedef enum {
 	false, true
 } bool;
 
+typedef enum{
+	findjumps, disassemble
+} typeofrun;
+
 typedef struct {
 	FILE* in;
 	FILE* out;
+	bool outfileused;
 } filestruct;
 
 typedef unsigned char u8;
@@ -30,7 +35,6 @@ typedef unsigned short int u16;
 typedef unsigned int u32;
 
 
-errorcode readopcode(filestruct files);
 
 #endif /* DISASSEMBLER_H_ */
 

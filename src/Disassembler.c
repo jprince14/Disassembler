@@ -3,35 +3,18 @@
 #include "../include/Disassembler.h"
 #include "../include/parse.h"
 
-
-const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP",
-		"EBP", "ESI", "EDI" };
+const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP",
+		"ESI", "EDI" };
 u32 totalbytecount;
-u32	instructionbytecount;
-
-errorcode readopcode(filestruct files) {
-	//Read one byte
-	errorcode returnflag;
-	u8 opcode;
-
-	instructionbytecount += 1;
-	size_t size = fread(&opcode, 1, 1, files.in);
-
-	if (size == 0) {
-//		printf("END of File Reached\n");
-		return endoffile;
-	}
-//	printf("Buffer = %02x\n", opcode);
-	returnflag = parseopcode(files, opcode);
-
-	return returnflag;
-}
+u32 instructionbytecount;
 
 int main(int argc, char *argv[]) {
-	if (argc != 3) {
-		fprintf(stderr, "usage %s input_BinaryFile output_x86_AssemblyFile",
+
+	if (argc != 2 && argc != 3) {
+		fprintf(stderr,
+				"usage %s [REQUIRED input_BinaryFile] [OPTIONAL output_x86_AssemblyFile]",
 				argv[0]);
-		return (missing_arg_2);
+		return (missing_arg);
 	}
 
 	filestruct files;
@@ -43,7 +26,17 @@ int main(int argc, char *argv[]) {
 		return (filedoesnotexist);
 	}
 
-	files.out = fopen(argv[2], "w");
+	if (argc == 3) {
+		files.out = fopen(argv[2], "w");
+		files.outfileused = true;
+	} else {
+		files.outfileused = false;
+	}
+
+#warning - add code so this gets cleanedup
+	Vector jumplocations;
+
+	initVector(&jumplocations, 20);
 
 	totalbytecount = 0;
 	instructionbytecount = 0;
@@ -51,13 +44,32 @@ int main(int argc, char *argv[]) {
 	errorcode runningflag;
 
 	do {
-		runningflag = readopcode(files);
+		//Run the first pass to figure out the jumps and place them in a vector
+		//If success then run again this time labeling the jumps and printing the assembly
+		//I thought that parsing through twice one to get the jump locations and the second
+		//time to get the assembly (which I also get in the first run b/c of function reuse)
+		//would be the best way to print the backwards jumps
+		runningflag = parseopcode(files, findjumps, &jumplocations);
 
 	} while (runningflag == success);
 
 	int returnvalue;
 
 	if (runningflag == endoffile) {
+//Successfully build the vector of jumps, now time to print the assembly with the jumps labeled
+
+		//set the input file stream to the beginning of the file
+		rewind(files.in);
+
+		//reset the byte counts
+		//resetting instructionbytecount to be safe
+		totalbytecount = 0;
+		instructionbytecount = 0;
+
+		do {
+			runningflag = parseopcode(files, disassemble, &jumplocations);
+		} while (runningflag == success);
+
 		printf("Successfully disassembled file\n");
 		cleanupandclose(files, success);
 		returnvalue = EXIT_SUCCESS;

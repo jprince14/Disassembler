@@ -18,4 +18,6 @@ void removeElementVector(Vector *vec, int indextodelete);
 
 void freeVector(Vector *vec);
 
+int searchVector(Vector *vec, u32 findthis);
+
 #endif /* CALL_H_ */

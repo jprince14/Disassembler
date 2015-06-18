@@ -64,7 +64,7 @@ int searchVector(Vector *vec, u32 findthis) {
 			continue;
 		}
 	}
-	//Index will == the index of the match or vec->used if no match
+	//Index will equal the index of the match or vec->used if no match
 	return index;
 }
 

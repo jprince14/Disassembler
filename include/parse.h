@@ -2,9 +2,7 @@
 #define PARSE_H_
 
 #include "Disassembler.h"
-
-//For debugging,used to print the disassembled code to the screen
-#define printtoscreen 1
+#include "Vector.h"
 
 typedef enum {
 	mod0,	// [reg]
@@ -32,11 +30,13 @@ typedef enum {
 	opcode_rm32_imm8,
 	opcode_rm32_r32,
 	opcode_r32_rm32,
-	opcode_rm32_1
+	opcode_rm32_1,
+	opcode_rel32,
+	opcode_rel8
 
 } opcodetype;
 
-errorcode parseopcode(filestruct files, u8 opcode);
+errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations);
 modrmm getandparsemodrmm(filestruct files);
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
 void cleanupandclose(filestruct files, errorcode code);

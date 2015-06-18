@@ -7,7 +7,8 @@
 #include "../include/parse.h"
 #include "../include/Disassembler.h"
 
-void sharednomodrmneeded(filestruct files, char* opcodename, opcodetype type) {
+void sharednomodrmneeded(filestruct files, char* opcodename, opcodetype type,
+		typeofrun run) {
 	char printbuffer[50];
 
 	if (type == opcode_eax_imm32) {
@@ -36,20 +37,33 @@ void sharednomodrmneeded(filestruct files, char* opcodename, opcodetype type) {
 
 		snprintf(printbuffer, 40, "%x:\t%s 0x%x\n", totalbytecount, opcodename,
 				imm8);
+	} else if (type == opcode_imm16) {
+
+		u16 imm16;
+		size_t size = fread(&imm16, 1, 2, files.in);
+		readerrorcheck(size, 2, files);
+		instructionbytecount += 2;
+
+		snprintf(printbuffer, 40, "%x:\t%s 0x%x\n", totalbytecount, opcodename,
+				imm16);
+
 	} else {
 		//Invalid opcode type
 		cleanupandclose(files, badopcode);
 	}
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
+
 }
 
 //modrm needs to be read before this function using getandparsemodrmm()
 void shared3partparse(filestruct files, char* opcodename, opcodetype type,
-		modrmm inputmodrmm) {
+		modrmm inputmodrmm, typeofrun run) {
 
 	//return starts with success and becomes an error if there is one
 	char printbuffer[50];
@@ -101,14 +115,16 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		cleanupandclose(files, badopcode);
 	}
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
 
 }
 
-void reg4bytes(filestruct files, u8 opcode, char* opcodename) {
+void reg4bytes(filestruct files, u8 opcode, char* opcodename, typeofrun run) {
 	char part2[20];
 	char part3[20];
 	char printbuffer[50];
@@ -126,13 +142,16 @@ void reg4bytes(filestruct files, u8 opcode, char* opcodename) {
 	snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount, opcodename,
 			part2, part3);
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
 }
 
-void registerinopcode(filestruct files, u8 opcode, char* opcodename) {
+void registerinopcode(filestruct files, u8 opcode, char* opcodename,
+		typeofrun run) {
 	char part2[20];
 	char printbuffer[50];
 
@@ -142,24 +161,30 @@ void registerinopcode(filestruct files, u8 opcode, char* opcodename) {
 	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
 			part2);
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
 }
 
-void sharedbasicInstruction(filestruct files, char* instruction) {
+void sharedbasicInstruction(filestruct files, char* instruction, typeofrun run) {
 	char printbuffer[50];
 
 	snprintf(printbuffer, 50, "%x:\t%s\n", totalbytecount, instruction);
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
+
 }
 
-void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm) {
+void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
+		typeofrun run) {
 
 	char printbuffer[50];
 	char part2[20];
@@ -169,14 +194,17 @@ void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm) {
 	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
 			part2);
 
-	fwrite(printbuffer, 1, strlen(printbuffer), files.out);
-#if printtoscreen
-	printf("%s", printbuffer);
-#endif
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
 }
 
-errorcode shared2plusbyteopcode(filestruct files, u8 opcode) {
-//read in the 2nd byte of the opcode
+errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run) {
+//read in the 2nd byte of the opcode and determine if a 3rd byte needs to be read in
+//then call the proper function to parse the opcode
 	size_t size;
 	u8 secondopcode;
 	modrmm parsedmodrmm;
@@ -195,7 +223,7 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode) {
 			if (parsedmodrmm.modrm_Reg == 0x0) {
 				//opcode 0F 1F /0
 				//nop r/m32
-				shared2partparse(files, "nop", parsedmodrmm);
+				shared2partparse(files, "nop", parsedmodrmm, run);
 			} else {
 				returnvalue = badopcode;
 			}
@@ -222,7 +250,7 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode) {
 			//opcode F3 0F B8
 			//popcnt r32, r/m32
 			parsedmodrmm = getandparsemodrmm(files);
-			shared3partparse(files, "cmp", opcode_r32_rm32, parsedmodrmm);
+			shared3partparse(files, "cmp", opcode_r32_rm32, parsedmodrmm, run);
 
 			break;
 		default:
@@ -234,32 +262,6 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode) {
 		returnvalue = badopcode;
 		break;
 		}
-		break;
-	}
-	return returnvalue;
-}
-
-errorcode shared3byteopcode(filestruct files, u8 firstopcode, u8 secondopcode) {
-//read in the 3rd byte of the opcode
-
-	errorcode returnvalue = success;
-	size_t size;
-	modrmm parsedmodrmm;
-
-	u8 thirdopcode;
-
-	size = fread(&thirdopcode, 1, 4, files.in);
-	readerrorcheck(size, 1, files);
-	instructionbytecount += 1;
-
-	switch (thirdopcode) {
-	case 0xB8:
-		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, "popcnt", opcode_r32_rm32, parsedmodrmm);
-
-		break;
-	default:
-		returnvalue = badopcode;
 		break;
 	}
 	return returnvalue;
