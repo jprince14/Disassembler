@@ -16,8 +16,7 @@ The assembler only works on a portion of x86. The following mnuematics are suppo
   * and r32, r/m32
   * call rel32
   * call r/m32
-  * cmp eax, im
-  * m32
+  * cmp eax, imm32
   * cmp r/m32, imm32
   * cmp r/m32, imm8
   * cmp r/m32, r32
@@ -41,8 +40,7 @@ The assembler only works on a portion of x86. The following mnuematics are suppo
   * mov r/m32, imm32
   * nop
   * nop r/m32
-  * or
-  * eax, imm32
+  * or eax, imm32
   * or r/m32, imm32
   * or r/m32, imm8
   * or r/m32, r32
