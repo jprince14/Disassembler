@@ -20,7 +20,7 @@ typedef enum {
 	false, true
 } bool;
 
-typedef enum{
+typedef enum {
 	findjumps, disassemble
 } typeofrun;
 
@@ -31,10 +31,10 @@ typedef struct {
 } filestruct;
 
 typedef unsigned char u8;
+typedef signed char s8;
 typedef unsigned short int u16;
 typedef unsigned int u32;
-
-
+typedef signed int s32;
 
 #endif /* DISASSEMBLER_H_ */
 

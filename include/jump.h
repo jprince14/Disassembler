@@ -9,7 +9,7 @@ extern const char* registerstrings[];
 void jmp_nomodrm(filestruct files, char* opcodename, opcodetype type,
 		typeofrun run, Vector *jumplocations);
 
-void jmp_modrm(filestruct files, char* opcodename, opcodetype type,
-		modrmm inputmodrmm, typeofrun run, Vector *jumplocations);
+void jump2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
+		typeofrun run, Vector* jumplocations);
 
 #endif /* JUMP_H_ */

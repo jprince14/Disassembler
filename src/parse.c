@@ -213,11 +213,14 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		} else if (parsedmodrmm.modrm_Reg == 0x1) {
 			//dec r/m32
 			shared2partparse(files, "dec", parsedmodrmm, run);
+		} else if (parsedmodrmm.modrm_Reg == 0x2) {
+			//call r/m32
+			jump2partparse(files, "call", parsedmodrmm, run, jumplocations);
+			break;
 		} else if (parsedmodrmm.modrm_Reg == 0x4) {
 			//jmp r/m32
-
-#warning - jmp r/m32 is not complete
-
+			jump2partparse(files, "push", parsedmodrmm, run, jumplocations);
+			break;
 		} else if (parsedmodrmm.modrm_Reg == 0x6) {
 			//push r/m32
 			shared2partparse(files, "push", parsedmodrmm, run);
@@ -319,6 +322,16 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0xE9:
 		jmp_nomodrm(files, "jmp", opcode_rel32, run, jumplocations);
+		break;
+	case 0xE8:
+		jmp_nomodrm(files, "call", opcode_rel32, run, jumplocations);
+		break;
+	case 0x8D:
+		//lea r32, m
+		//since a SAR byte is out of scope of the project im interpreting this
+		//as lea r32, r/m32
+		parsedmodrmm = getandparsemodrmm(files);
+		shared3partparse(files, "lea", opcode_r32_rm32, parsedmodrmm, run);
 		break;
 	default:
 		match = false;

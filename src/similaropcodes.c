@@ -266,3 +266,4 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run) {
 	}
 	return returnvalue;
 }
+
