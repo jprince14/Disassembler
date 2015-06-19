@@ -46,5 +46,6 @@ void getpart2fromopcode(u8 opcode, char* part2, int part2size);
 
 extern u32 totalbytecount;
 extern u32 instructionbytecount;
+extern Vector g_jumplocations;
 
 #endif /* PARSE_H_ */

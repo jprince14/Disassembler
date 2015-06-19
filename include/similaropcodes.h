@@ -21,5 +21,6 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run);
 extern const char* registerstrings[];
 extern u32 totalbytecount;
 extern u32 instructionbytecount;
+extern Vector g_jumplocations;
 
 #endif /* AND_H_ */

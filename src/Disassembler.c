@@ -7,6 +7,8 @@ const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP",
 		"ESI", "EDI" };
 u32 totalbytecount;
 u32 instructionbytecount;
+Vector g_jumplocations;
+
 
 int main(int argc, char *argv[]) {
 
@@ -33,10 +35,8 @@ int main(int argc, char *argv[]) {
 		files.outfileused = false;
 	}
 
-#warning - add code so this gets cleanedup
-	Vector jumplocations;
 
-	initVector(&jumplocations, 20);
+	initVector(&g_jumplocations, 20);
 
 	totalbytecount = 0;
 	instructionbytecount = 0;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 		//I thought that parsing through twice one to get the jump locations and the second
 		//time to get the assembly (which I also get in the first run b/c of function reuse)
 		//would be the best way to print the backwards jumps
-		runningflag = parseopcode(files, findjumps, &jumplocations);
+		runningflag = parseopcode(files, findjumps, &g_jumplocations);
 
 	} while (runningflag == success);
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 		instructionbytecount = 0;
 
 		do {
-			runningflag = parseopcode(files, disassemble, &jumplocations);
+			runningflag = parseopcode(files, disassemble, &g_jumplocations);
 		} while (runningflag == success);
 
 		printf("Successfully disassembled file\n");

@@ -443,14 +443,13 @@ void cleanupandclose(filestruct files, errorcode code) {
 	if (code != success) {
 		displayerroroutput(code);
 	}
+	freeVector(&g_jumplocations);
 	exit(-1);
 
 }
 
 void displayerroroutput(errorcode code) {
 //TODO: come back to add errrorcode parsing
-	printf("COMEBACKHERE\n");
-//display to screen adn print to file
-
+	printf("Error at location 0x%x\n", totalbytecount);
 }
 
