@@ -8,8 +8,10 @@
 #include "../include/Disassembler.h"
 #include "../include/jump.h"
 
-void sharednomodrmneeded(filestruct files, char* opcodename, opcodetype type,
+void sharedonlyimmneeded(filestruct files, char* opcodename, opcodetype type,
 		typeofrun run) {
+	//This covers instructions where no MODR/M is needed and only the immm needs to be scanned
+
 	char printbuffer[50];
 
 	if (type == opcode_eax_imm32) {
@@ -65,6 +67,12 @@ void sharednomodrmneeded(filestruct files, char* opcodename, opcodetype type,
 //modrm needs to be read before this function using getandparsemodrmm()
 void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		modrmm inputmodrmm, typeofrun run) {
+	//This covers the majority of instructions that follow the form
+	//add r/m32, imm32
+	//add r/m32, imm8
+	//add r/m32, r32
+	//add r32, r/m32
+	//sar r/m32, 1
 
 	//return starts with success and becomes an error if there is one
 	char printbuffer[50];
@@ -125,7 +133,11 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 
 }
 
-void reg4bytes(filestruct files, u8 opcode, char* opcodename, typeofrun run) {
+void registerinopcode4bytes(filestruct files, u8 opcode, char* opcodename,
+		typeofrun run) {
+	//Register in the first byte of the opcode, 4 more bytes needed for imm32
+	//Example instruction = mov r32, imm32 = B8 + rd
+
 	char part2[20];
 	char part3[20];
 	char printbuffer[50];
@@ -153,6 +165,9 @@ void reg4bytes(filestruct files, u8 opcode, char* opcodename, typeofrun run) {
 
 void registerinopcode(filestruct files, u8 opcode, char* opcodename,
 		typeofrun run) {
+	//Register in the first byte of the opcode, no more bytes needed
+	//Example instruction = pop r32 = 58 + rd
+
 	char part2[20];
 	char printbuffer[50];
 
@@ -171,6 +186,9 @@ void registerinopcode(filestruct files, u8 opcode, char* opcodename,
 }
 
 void sharedbasicInstruction(filestruct files, char* instruction, typeofrun run) {
+	//Nothing else to parse.
+	//Example instruction = "nop"
+
 	char printbuffer[50];
 
 	snprintf(printbuffer, 50, "%x:\t%s\n", totalbytecount, instruction);
@@ -186,6 +204,9 @@ void sharedbasicInstruction(filestruct files, char* instruction, typeofrun run) 
 
 void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
 		typeofrun run) {
+//This is used in instructions where there is the opcode then modr/m where the
+//instructions are only 2 parts
+///Example instruction = pop r/m32
 
 	char printbuffer[50];
 	char part2[20];

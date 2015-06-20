@@ -50,7 +50,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 	switch (opcode) {
 	case 0x05:
 		//add eax, imm32
-		sharednomodrmneeded(files, "add", opcode_eax_imm32, run);
+		sharedonlyimmneeded(files, "add", opcode_eax_imm32, run);
 		break;
 	case 0x81:
 		parsedmodrmm = getandparsemodrmm(files);
@@ -121,7 +121,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		//AND
 	case 0x25:
 		//and eax, imm32
-		sharednomodrmneeded(files, "and", opcode_eax_imm32, run);
+		sharedonlyimmneeded(files, "and", opcode_eax_imm32, run);
 		break;
 	case 0x21:
 		//and r/m32, r32
@@ -135,7 +135,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0x3d:
 		//cmp eax, imm32
-		sharednomodrmneeded(files, "cmp", opcode_eax_imm32, run);
+		sharedonlyimmneeded(files, "cmp", opcode_eax_imm32, run);
 		break;
 	case 0x39:
 		//cmp r/m32, r32
@@ -158,7 +158,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0x0D:
 		//or eax, imm32
-		sharednomodrmneeded(files, "or", opcode_eax_imm32, run);
+		sharedonlyimmneeded(files, "or", opcode_eax_imm32, run);
 		break;
 	case 0x09:
 		//or r/m32, r32
@@ -172,7 +172,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0x35:
 		//xor eax, imm32
-		sharednomodrmneeded(files, "xor", opcode_eax_imm32, run);
+		sharedonlyimmneeded(files, "xor", opcode_eax_imm32, run);
 		break;
 	case 0x31:
 		//xor r/m32, r32
@@ -230,11 +230,11 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0x6A:
 		//push imm8
-		sharednomodrmneeded(files, "push", opcode_imm8, run);
+		sharedonlyimmneeded(files, "push", opcode_imm8, run);
 		break;
 	case 0x68:
 		//push imm32
-		sharednomodrmneeded(files, "push", opcode_imm32, run);
+		sharedonlyimmneeded(files, "push", opcode_imm32, run);
 		break;
 	case 0xC3:
 		//retn (listed as ret in intel manual)
@@ -249,16 +249,16 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 	case 0xC2:
 		//Near return
 		//retn imm16 (listed as ret in intel manual)
-		sharednomodrmneeded(files, "ret", opcode_imm16, run);
+		sharedonlyimmneeded(files, "ret", opcode_imm16, run);
 		break;
 	case 0xCA:
 		//Far return
 		//retn imm16 (listed as ret in intel manual)
-		sharednomodrmneeded(files, "ret", opcode_imm16, run);
+		sharedonlyimmneeded(files, "ret", opcode_imm16, run);
 		break;
 	case 0xA9:
 		//text eax, imm32
-		sharednomodrmneeded(files, "retn", opcode_imm32, run);
+		sharedonlyimmneeded(files, "retn", opcode_imm32, run);
 		break;
 	case 0xF7:
 		parsedmodrmm = getandparsemodrmm(files);
@@ -315,7 +315,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0xCD:
 		//int imm8
-		sharednomodrmneeded(files, "int", opcode_imm8, run);
+		sharedonlyimmneeded(files, "int", opcode_imm8, run);
 		break;
 	case 0xEB:
 		jumprel(files, "jmp", opcode_rel8, run, jumplocations);
@@ -345,7 +345,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		if ((opcode & 0xF8) == 0xB8) {
 			//mov r32, imm32
 			//This matches the mov eax, imm32 for the assignment but adds more functionality
-			reg4bytes(files, opcode, "mov", run);
+			registerinopcode4bytes(files, opcode, "mov", run);
 		} else if ((opcode & 0xF8) == 0x58) {
 			//pop r32
 			registerinopcode(files, opcode, "pop", run);
@@ -397,6 +397,26 @@ modrmm getandparsemodrmm(filestruct files) {
 	result.modrm_Reg = ((modrm >> 3) & 0b00000111);
 
 	result.modrm_RM_Reg = (modrm & 0b00000111);
+
+
+#ifdef SAR_CODE
+	//Test for SAR and the process it
+	if ((result.modrm_MOD != mod3) && (result.modrm_RM_Reg == ESP)) {
+		u8 sarbyte;
+		size = fread(&sarbyte, 1, 1, files.in);
+		readerrorcheck(size, 1, files);
+		instructionbytecount += 1;
+
+		result.SAR.index = ((sarbyte >> 6) & 0b00000011);
+		result.SAR.index_reg = ((sarbyte >> 3) & 0b00000111);
+		result.SAR.base_reg = (sarbyte & 0b00000111);
+
+		result.sarused = true;
+	} else {
+
+		result.sarused = false;
+	}
+#endif
 
 	return result;
 }
