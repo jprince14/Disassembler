@@ -16,7 +16,8 @@ void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
 		typeofrun run);
 void registerinopcode(filestruct files, u8 opcode, char* opcodename,
 		typeofrun run);
-errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run);
+errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run,
+		Vector* jumplocations);
 
 extern const char* registerstrings[];
 extern u32 totalbytecount;

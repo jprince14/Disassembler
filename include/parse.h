@@ -41,7 +41,7 @@ modrmm getandparsemodrmm(filestruct files);
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
 void cleanupandclose(filestruct files, errorcode code);
 void displayerroroutput(errorcode code);
-void getpart2(modrmm input, filestruct files, char* part2, int part2size);
+void placerm32inpart2(modrmm input, filestruct files, char* part2, int part2size);
 void getpart2fromopcode(u8 opcode, char* part2, int part2size);
 
 extern u32 totalbytecount;

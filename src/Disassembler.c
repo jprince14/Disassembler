@@ -3,7 +3,7 @@
 #include "../include/Disassembler.h"
 #include "../include/parse.h"
 
-const char* registerstrings[] = { "EAX", "ECX", "EDX", "EBX", "ESP", "EBP",
+const char* registerstrings[] = { "eax", "ecx", "edx", "ebx", "esp", "ebp",
 		"ESI", "EDI" };
 u32 totalbytecount;
 u32 instructionbytecount;

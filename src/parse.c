@@ -190,7 +190,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0x0F:
 		//nop r/m32 = 0F 1F /0
-		returnvalue = shared2plusbyteopcode(files, opcode, run);
+		returnvalue = shared2plusbyteopcode(files, opcode, run, jumplocations);
 		break;
 	case 0x8F:
 		parsedmodrmm = getandparsemodrmm(files);
@@ -203,7 +203,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		break;
 	case 0xF3:
 		//popcnt = F3 0F B8 /r
-		returnvalue = shared2plusbyteopcode(files, opcode, run);
+		returnvalue = shared2plusbyteopcode(files, opcode, run, jumplocations);
 		break;
 	case 0xFF:
 		parsedmodrmm = getandparsemodrmm(files);
@@ -215,11 +215,11 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 			shared2partparse(files, "dec", parsedmodrmm, run);
 		} else if (parsedmodrmm.modrm_Reg == 0x2) {
 			//call r/m32
-			jump2partparse(files, "call", parsedmodrmm, run, jumplocations);
+			jumprm32(files, "call", parsedmodrmm, run, jumplocations);
 			break;
 		} else if (parsedmodrmm.modrm_Reg == 0x4) {
 			//jmp r/m32
-			jump2partparse(files, "push", parsedmodrmm, run, jumplocations);
+			jumprm32(files, "push", parsedmodrmm, run, jumplocations);
 			break;
 		} else if (parsedmodrmm.modrm_Reg == 0x6) {
 			//push r/m32
@@ -318,13 +318,13 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		sharednomodrmneeded(files, "int", opcode_imm8, run);
 		break;
 	case 0xEB:
-		jmp_nomodrm(files, "jmp", opcode_rel8, run, jumplocations);
+		jumprel(files, "jmp", opcode_rel8, run, jumplocations);
 		break;
 	case 0xE9:
-		jmp_nomodrm(files, "jmp", opcode_rel32, run, jumplocations);
+		jumprel(files, "jmp", opcode_rel32, run, jumplocations);
 		break;
 	case 0xE8:
-		jmp_nomodrm(files, "call", opcode_rel32, run, jumplocations);
+		jumprel(files, "call", opcode_rel32, run, jumplocations);
 		break;
 	case 0x8D:
 		//lea r32, m
@@ -361,9 +361,15 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 					totalbytecount);
 			registerinopcode(files, opcode, "inc", run);
 		} else {
-			//There were no matches in the switch or above so its a unknown opcode
-			fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n", opcode);
-			returnvalue = badopcode;
+			//As a last check parse the jCC options so its the last thing to check
+			//and put in its own funciton, if no match then the opcode is unrecognized
+			returnvalue = parsejCC(files, opcode, run, jumplocations);
+
+			if (returnvalue == badopcode) {
+				//There were no matches in the switch or above so its a unknown opcode
+				fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n",
+						opcode);
+			}
 		}
 	}
 //Update the instruction counters
@@ -395,7 +401,8 @@ modrmm getandparsemodrmm(filestruct files) {
 	return result;
 }
 
-void getpart2(modrmm input, filestruct files, char* part2, int part2size) {
+void placerm32inpart2(modrmm input, filestruct files, char* part2,
+		int part2size) {
 	size_t size;
 
 	if (input.modrm_MOD == mod0) {
