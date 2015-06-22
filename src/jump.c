@@ -16,12 +16,10 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		size_t size = fread(&rel32, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", ntohl(rel32));
 
-		//determine if it is a jump forwards or backwards
-
-//		if ((rel32 & 0xF0000000) == 0xF0000000) {
-//			//Negative Number
-//		}
+		//determine if it is a jump forwards or backwards byt he jump location being read
+		//into a signed 4 byte int (s32)
 
 		jumplocation = totalbytecount + instructionbytecount + rel32;
 
@@ -36,6 +34,7 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		size_t size = fread(&rel8, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", rel8);
 
 		jumplocation = totalbytecount + instructionbytecount + rel8;
 
@@ -61,12 +60,10 @@ void jumprm32(filestruct files, char* opcodename, modrmm inputmodrmm,
 	char printbuffer[50];
 	char part2[20];
 
-	placerm32inpart2(inputmodrmm, files, part2, sizeof(part2));
+	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
 	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
 			part2);
-
-#warning - currently no jump labeling here, do i need one for jumping to a reg or memory location
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {

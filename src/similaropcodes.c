@@ -20,8 +20,10 @@ void sharedonlyimmneeded(filestruct files, char* opcodename, opcodetype type,
 		size_t size = fread(&imm32, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm32));
 
-		snprintf(printbuffer, 40, "%x:\t%s, eax, 0x%x\n", totalbytecount,
+		snprintf(printbuffer, 40, "%x:\t%s\t\t%s, eax, 0x%x\n", totalbytecount, g_opcodes,
 				opcodename, imm32);
 
 	} else if (type == opcode_imm32) {
@@ -29,25 +31,30 @@ void sharedonlyimmneeded(filestruct files, char* opcodename, opcodetype type,
 		size_t size = fread(&imm32, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm32));
 
-		snprintf(printbuffer, 40, "%x:\t%s 0x%x\n", totalbytecount, opcodename,
+		snprintf(printbuffer, 40, "%x:\t%s\t\t%s 0x%x\n", totalbytecount, g_opcodes, opcodename,
 				imm32);
 	} else if (type == opcode_imm8) {
 		u8 imm8;
 		size_t size = fread(&imm8, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", imm8);
 
-		snprintf(printbuffer, 40, "%x:\t%s 0x%x\n", totalbytecount, opcodename,
+		snprintf(printbuffer, 40, "%x:\t%s\t\t%s 0x%x\n", totalbytecount, g_opcodes, opcodename,
 				imm8);
 	} else if (type == opcode_imm16) {
 
-		u16 imm16;
+		s16 imm16;
 		size_t size = fread(&imm16, 1, 2, files.in);
 		readerrorcheck(size, 2, files);
 		instructionbytecount += 2;
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm16));
 
-		snprintf(printbuffer, 40, "%x:\t%s 0x%x\n", totalbytecount, opcodename,
+		snprintf(printbuffer, 40, "%x:\t%s\t\t%s 0x%x\n", totalbytecount, g_opcodes, opcodename,
 				imm16);
 
 	} else {
@@ -80,7 +87,7 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 	char part3[20];
 	size_t size;
 
-	placerm32inpart2(inputmodrmm, files, part2, sizeof(part2));
+	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
 	if (type == opcode_rm32_imm32) {
 
@@ -89,8 +96,10 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
 		snprintf(part3, 20, "0x%x", imm32);
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm32));
 
-		snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+		snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes,
 				opcodename, part2, part3);
 
 	} else if (type == opcode_rm32_imm8) {
@@ -100,24 +109,26 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
 		snprintf(part3, 20, "0x%x", imm8);
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", imm8);
 
-		snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+		snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes,
 				opcodename, part2, part3);
 
 	} else if (type == opcode_rm32_r32) {
 
 		snprintf(part3, 20, "%s", registerstrings[inputmodrmm.modrm_Reg]);
-		snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+		snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes,
 				opcodename, part2, part3);
 
 	} else if (type == opcode_r32_rm32) {
 		snprintf(part3, 20, "%s", registerstrings[inputmodrmm.modrm_Reg]);
 
 		//parts 2 and 3 are swapped for this one
-		snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+		snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes,
 				opcodename, part3, part2);
 	} else if (type == opcode_rm32_1) {
-		snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount,
+		snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes,
 				opcodename, part2, "1");
 	} else {
 		//Invalid type received
@@ -151,8 +162,10 @@ void registerinopcode4bytes(filestruct files, u8 opcode, char* opcodename,
 	readerrorcheck(size, 4, files);
 	instructionbytecount += 4;
 	snprintf(part3, 20, "0x%x", imm32);
+	//need htonl to flip the endianness
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm32));
 
-	snprintf(printbuffer, 50, "%x:\t%s %s, %s\n", totalbytecount, opcodename,
+	snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes, g_opcodes,
 			part2, part3);
 
 	if (run == disassemble) {
@@ -174,7 +187,7 @@ void registerinopcode(filestruct files, u8 opcode, char* opcodename,
 	//get the register for part2 in the array
 	getpart2fromopcode(opcode, part2, sizeof(part2));
 
-	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
+	snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s\n", totalbytecount, g_opcodes, opcodename,
 			part2);
 
 	if (run == disassemble) {
@@ -191,7 +204,7 @@ void sharedbasicInstruction(filestruct files, char* instruction, typeofrun run) 
 
 	char printbuffer[50];
 
-	snprintf(printbuffer, 50, "%x:\t%s\n", totalbytecount, instruction);
+	snprintf(printbuffer, 50, "%x:\t%s\t\t%s\n", totalbytecount, g_opcodes, instruction);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
@@ -211,10 +224,47 @@ void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
 	char printbuffer[50];
 	char part2[20];
 
-	placerm32inpart2(inputmodrmm, files, part2, sizeof(part2));
+	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
-	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
+	snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s\n", totalbytecount, g_opcodes, opcodename,
 			part2);
+
+	if (run == disassemble) {
+		if (files.outfileused == true) {
+			fwrite(printbuffer, 1, strlen(printbuffer), files.out);
+		}
+		printf("%s", printbuffer);
+	}
+}
+
+void lea(filestruct files, char* opcodename, modrmm inputmodrmm, typeofrun run) {
+
+	char printbuffer[50];
+	char part2[20];
+	char part3[20];
+	size_t size;
+
+	snprintf(part2, sizeof(part2), "%s",
+			registerstrings[inputmodrmm.modrm_Reg]);
+
+	if ((inputmodrmm.modrm_RM_Reg & 0x05) == 0x05) {
+		//Test if the least significant 3 bits = 0b101
+
+		//	read in an imm32
+		u32 imm32;
+		size = fread(&imm32, 1, 4, files.in);
+		readerrorcheck(size, 4, files);
+		instructionbytecount += 4;
+		//need htonl to flip the endianness
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", ntohl(imm32));
+
+		snprintf(part3, 20, "[0x%x]", imm32);
+	} else {
+		placerm32inarray(inputmodrmm, files, part3, sizeof(part3));
+	}
+
+	snprintf(printbuffer, 50, "%x:\t%s\t\t%s %s, %s\n", totalbytecount, g_opcodes, opcodename,
+			part2, part3);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
@@ -237,6 +287,7 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run,
 	size = fread(&secondopcode, 1, 1, files.in);
 	readerrorcheck(size, 1, files);
 	instructionbytecount += 1;
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", secondopcode);
 
 	switch (opcode) {
 	case 0x0F:
@@ -407,6 +458,7 @@ errorcode shared2plusbyteopcode(filestruct files, u8 opcode, typeofrun run,
 		size = fread(&thirdopcode, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", thirdopcode);
 
 		switch (thirdopcode) {
 		case 0xB8:

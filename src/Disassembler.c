@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/Disassembler.h"
+#include <netinet/in.h>
 #include "../include/parse.h"
 
+#include "../include/Disassembler.h"
+
 const char* registerstrings[] = { "eax", "ecx", "edx", "ebx", "esp", "ebp",
-		"ESI", "EDI" };
+		"esi", "edi" };
+
 u32 totalbytecount;
 u32 instructionbytecount;
 Vector g_jumplocations;
-
+char g_opcodes[40];
 
 int main(int argc, char *argv[]) {
 
@@ -35,11 +38,11 @@ int main(int argc, char *argv[]) {
 		files.outfileused = false;
 	}
 
-
 	initVector(&g_jumplocations, 20);
 
 	totalbytecount = 0;
 	instructionbytecount = 0;
+	memset(g_opcodes, 0x00, sizeof(g_opcodes));
 
 	errorcode runningflag;
 
@@ -75,7 +78,7 @@ int main(int argc, char *argv[]) {
 		returnvalue = EXIT_SUCCESS;
 	} else {
 		cleanupandclose(files, runningflag);
-		return -1;
+		returnvalue = -1;
 	}
 
 	return returnvalue;

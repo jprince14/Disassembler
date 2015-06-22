@@ -1,5 +1,6 @@
 #ifndef CALL_H_
 #define CALL_H_
+#include "parse.h"
 #include "Disassembler.h"
 
 extern const char* registerstrings[];

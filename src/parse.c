@@ -36,6 +36,9 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		}
 	}
 
+	//Set the opcode array to 0 at the beginning of each run
+	memset(g_opcodes, 0x00, sizeof(g_opcodes));
+
 	u8 opcode;
 	//Read one byte
 	size_t size = fread(&opcode, 1, 1, files.in);
@@ -46,6 +49,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 	}
 	readerrorcheck(size, 1, files);
 	instructionbytecount += 1;
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", opcode);
 
 	switch (opcode) {
 	case 0x05:
@@ -331,7 +335,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 		//since a SAR byte is out of scope of the project im interpreting this
 		//as lea r32, r/m32
 		parsedmodrmm = getandparsemodrmm(files);
-		shared3partparse(files, "lea", opcode_r32_rm32, parsedmodrmm, run);
+		lea(files, "lea", parsedmodrmm, run);
 		break;
 	default:
 		match = false;
@@ -357,8 +361,6 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 			registerinopcode(files, opcode, "dec", run);
 		} else if ((opcode & 0xF8) == 0x40) {
 			//inc r32
-			printf("opcode = 0x%x, totalbytecode = 0x%x\n", opcode,
-					totalbytecount);
 			registerinopcode(files, opcode, "inc", run);
 		} else {
 			//As a last check parse the jCC options so its the last thing to check
@@ -389,6 +391,7 @@ modrmm getandparsemodrmm(filestruct files) {
 	size = fread(&modrm, 1, 1, files.in);
 	readerrorcheck(size, 1, files);
 	instructionbytecount += 1;
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", modrm);
 
 //Parse the MOD
 //AND with 0b11000000 to get the first 2 bytes
@@ -398,14 +401,15 @@ modrmm getandparsemodrmm(filestruct files) {
 
 	result.modrm_RM_Reg = (modrm & 0b00000111);
 
-
-#ifdef SAR_CODE
+#if SAR_CODE
 	//Test for SAR and the process it
 	if ((result.modrm_MOD != mod3) && (result.modrm_RM_Reg == ESP)) {
 		u8 sarbyte;
 		size = fread(&sarbyte, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", sarbyte);
+
 
 		result.SAR.index = ((sarbyte >> 6) & 0b00000011);
 		result.SAR.index_reg = ((sarbyte >> 3) & 0b00000111);
@@ -421,7 +425,7 @@ modrmm getandparsemodrmm(filestruct files) {
 	return result;
 }
 
-void placerm32inpart2(modrmm input, filestruct files, char* part2,
+void placerm32inarray(modrmm input, filestruct files, char* part2,
 		int part2size) {
 	size_t size;
 
@@ -432,6 +436,8 @@ void placerm32inpart2(modrmm input, filestruct files, char* part2,
 		size = fread(&byte, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", byte);
+
 		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[input.modrm_RM_Reg], byte);
 
@@ -440,12 +446,14 @@ void placerm32inpart2(modrmm input, filestruct files, char* part2,
 		size = fread(&dword, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
+		//Need to flip the endianness for the 4 bytes
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", ntohl(dword));
+
 		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[input.modrm_RM_Reg], dword);
 	} else if (input.modrm_MOD == mod3) {
 		snprintf(part2, part2size, "%s", registerstrings[input.modrm_RM_Reg]);
 	}
-
 }
 
 void getpart2fromopcode(u8 opcode, char* part2, int part2size) {
@@ -464,14 +472,15 @@ void cleanupandclose(filestruct files, errorcode code) {
 //	char errorstring[] = "\nERROR with Disassembly\n";
 
 	fclose(files.in);
+	freeVector(&g_jumplocations);
+
 	if (files.outfileused == true) {
 		fclose(files.out);
 	}
 	if (code != success) {
 		displayerroroutput(code);
+		exit(-1);
 	}
-	freeVector(&g_jumplocations);
-	exit(-1);
 
 }
 

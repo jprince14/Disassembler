@@ -4,8 +4,11 @@
 #include "Vector.h"
 #include "parse.h"
 
+#include <netinet/in.h>
+
 extern const char* registerstrings[];
 extern Vector g_jumplocations;
+extern char g_opcodes[40];
 
 void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		Vector *jumplocations);
