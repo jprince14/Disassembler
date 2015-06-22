@@ -367,10 +367,13 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 			//and put in its own funciton, if no match then the opcode is unrecognized
 			returnvalue = parsejCC(files, opcode, run, jumplocations);
 
-			if (returnvalue == badopcode) {
+			if (returnvalue == badopcode && run == disassemble) {
 				//There were no matches in the switch or above so its a unknown opcode
-				fprintf(stderr, "ERROR: Opcode of 0x%x not recognized\n",
-						opcode);
+				//There is a space at the end of g_opcodes so the formatting looks weird here
+				//but it prints normally
+				fprintf(stderr,
+						"ERROR: Opcode of 0x%sat location 0x%x not recognized\n",
+						g_opcodes, (totalbytecount + instructionbytecount - 1));
 			}
 		}
 	}
@@ -480,16 +483,10 @@ void cleanupandclose(filestruct files, errorcode code) {
 	if (files.outfileused == true) {
 		fclose(files.out);
 	}
-	if (code != success) {
-		displayerroroutput(code);
+	if ((code != success) && (g_runtype == disassemble)) {
+		//dont exit when finding jumps
 		exit(-1);
 	}
-
-}
-
-void displayerroroutput(errorcode code) {
-//TODO: come back to add errrorcode parsing
-	printf("Error at location 0x%x\n", totalbytecount);
 }
 
 void _32bittostring(char* string, size_t strsize, u32 opcode) {

@@ -40,7 +40,8 @@ sar SAR;
 #endif
 } modrmm;
 
-typedef enum {opcode_eax_imm32,
+typedef enum {
+opcode_eax_imm32,
 opcode_imm32,
 opcode_imm16,
 opcode_imm8,
@@ -58,7 +59,6 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations);
 modrmm getandparsemodrmm(filestruct files);
 void readerrorcheck(size_t sizeread, size_t expectedsize, filestruct files);
 void cleanupandclose(filestruct files, errorcode code);
-void displayerroroutput(errorcode code);
 void placerm32inarray(modrmm input, filestruct files, char* part2,
 	int part2size);
 void getpart2fromopcode(u8 opcode, char* part2, int part2size);
@@ -69,5 +69,6 @@ extern u32 totalbytecount;
 extern u32 instructionbytecount;
 extern Vector g_jumplocations;
 extern char g_opcodes[40];
+extern typeofrun g_runtype;
 
 #endif /* PARSE_H_ */

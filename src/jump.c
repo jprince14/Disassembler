@@ -27,8 +27,9 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 
 		jumplocation = totalbytecount + instructionbytecount + rel32;
 
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s offset_0x%x\n",
-				totalbytecount, g_opcodes, opcodename, jumplocation);
+		snprintf(printbuffer, sizeof(printbuffer),
+				"%x:\t%-25s\t%-20s offset_0x%x\n", totalbytecount, g_opcodes,
+				opcodename, jumplocation);
 
 		if (run == findjumps) {
 			insertVector(jumplocations, jumplocation);
@@ -43,8 +44,9 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 
 		jumplocation = totalbytecount + instructionbytecount + rel8;
 
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s offset_0x%x\n",
-				totalbytecount, g_opcodes, opcodename, jumplocation);
+		snprintf(printbuffer, sizeof(printbuffer),
+				"%x:\t%-25s\t%-20s offset_0x%x\n", totalbytecount, g_opcodes,
+				opcodename, jumplocation);
 
 		if (run == findjumps) {
 			insertVector(jumplocations, jumplocation);
@@ -67,8 +69,8 @@ void jumprm32(filestruct files, char* opcodename, modrmm inputmodrmm,
 
 	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
-	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n", totalbytecount,
-			opcodename, g_opcodes, part2);
+	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n",
+			totalbytecount, opcodename, g_opcodes, part2);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {

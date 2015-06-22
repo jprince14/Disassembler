@@ -114,8 +114,8 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%s",
 				opcodestring);
 
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-				g_opcodes, opcodename, part2, part3);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+				totalbytecount, g_opcodes, opcodename, part2, part3);
 
 	} else if (type == opcode_rm32_imm8) {
 
@@ -128,24 +128,24 @@ void shared3partparse(filestruct files, char* opcodename, opcodetype type,
 		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ",
 				imm8);
 
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-				g_opcodes, opcodename, part2, part3);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+				totalbytecount, g_opcodes, opcodename, part2, part3);
 
 	} else if (type == opcode_rm32_r32) {
 
 		snprintf(part3, 20, "%s", registerstrings[inputmodrmm.modrm_Reg]);
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-				g_opcodes, opcodename, part2, part3);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+				totalbytecount, g_opcodes, opcodename, part2, part3);
 
 	} else if (type == opcode_r32_rm32) {
 		snprintf(part3, 20, "%s", registerstrings[inputmodrmm.modrm_Reg]);
 
 		//parts 2 and 3 are swapped for this one
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-				g_opcodes, opcodename, part3, part2);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+				totalbytecount, g_opcodes, opcodename, part3, part2);
 	} else if (type == opcode_rm32_1) {
-		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-				g_opcodes, opcodename, part2, "1");
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+				totalbytecount, g_opcodes, opcodename, part2, "1");
 	} else {
 		//Invalid type received
 		cleanupandclose(files, badopcode);
@@ -223,8 +223,8 @@ void sharedbasicInstruction(filestruct files, char* instruction, typeofrun run) 
 
 	char printbuffer[120];
 
-	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s\n", totalbytecount, g_opcodes,
-			instruction);
+	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s\n",
+			totalbytecount, g_opcodes, instruction);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
@@ -246,8 +246,8 @@ void shared2partparse(filestruct files, char* opcodename, modrmm inputmodrmm,
 
 	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
-	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n", totalbytecount,
-			g_opcodes, opcodename, part2);
+	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n",
+			totalbytecount, g_opcodes, opcodename, part2);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
@@ -286,8 +286,8 @@ void lea(filestruct files, char* opcodename, modrmm inputmodrmm, typeofrun run) 
 		placerm32inarray(inputmodrmm, files, part3, sizeof(part3));
 	}
 
-	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n", totalbytecount,
-			g_opcodes, opcodename, part2, part3);
+	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s, %s\n",
+			totalbytecount, g_opcodes, opcodename, part2, part3);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {

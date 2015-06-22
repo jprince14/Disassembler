@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <netinet/in.h>
 #include "../include/parse.h"
 
@@ -13,6 +13,7 @@ u32 totalbytecount;
 u32 instructionbytecount;
 Vector g_jumplocations;
 char g_opcodes[40];
+typeofrun g_runtype;
 
 int main(int argc, char *argv[]) {
 
@@ -46,6 +47,7 @@ int main(int argc, char *argv[]) {
 	memset(g_opcodes, 0x00, sizeof(g_opcodes));
 
 	errorcode runningflag;
+	g_runtype = findjumps;
 
 	do {
 		//Run the first pass to figure out the jumps and place them in a vector
@@ -53,13 +55,13 @@ int main(int argc, char *argv[]) {
 		//I thought that parsing through twice one to get the jump locations and the second
 		//time to get the assembly (which I also get in the first run b/c of function reuse)
 		//would be the best way to print the backwards jumps
-		runningflag = parseopcode(files, findjumps, &g_jumplocations);
+		runningflag = parseopcode(files, g_runtype, &g_jumplocations);
 
 	} while (runningflag == success);
 
 	int returnvalue;
 
-	if (runningflag == endoffile) {
+	if (runningflag == endoffile || runningflag == badopcode) {
 //Successfully build the vector of jumps, now time to print the assembly with the jumps labeled
 
 		//set the input file stream to the beginning of the file
@@ -70,11 +72,17 @@ int main(int argc, char *argv[]) {
 		totalbytecount = 0;
 		instructionbytecount = 0;
 
+		g_runtype = disassemble;
+
 		do {
-			runningflag = parseopcode(files, disassemble, &g_jumplocations);
+			runningflag = parseopcode(files, g_runtype, &g_jumplocations);
 		} while (runningflag == success);
 
-		printf("Successfully disassembled file\n");
+		if (runningflag == endoffile) {
+			//Specifiy only when EOF reached bc this could also be run if a badopcode was hit
+			printf("\nSuccessfully disassembled file\n");
+		}
+
 		cleanupandclose(files, success);
 		returnvalue = EXIT_SUCCESS;
 	} else {
