@@ -49,7 +49,7 @@ errorcode parseopcode(filestruct files, typeofrun run, Vector* jumplocations) {
 	}
 	readerrorcheck(size, 1, files);
 	instructionbytecount += 1;
-	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x ", opcode);
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ", opcode);
 
 	switch (opcode) {
 	case 0x05:
@@ -391,7 +391,7 @@ modrmm getandparsemodrmm(filestruct files) {
 	size = fread(&modrm, 1, 1, files.in);
 	readerrorcheck(size, 1, files);
 	instructionbytecount += 1;
-	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", modrm);
+	snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ", modrm);
 
 //Parse the MOD
 //AND with 0b11000000 to get the first 2 bytes
@@ -408,8 +408,7 @@ modrmm getandparsemodrmm(filestruct files) {
 		size = fread(&sarbyte, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
-		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", sarbyte);
-
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ", sarbyte);
 
 		result.SAR.index = ((sarbyte >> 6) & 0b00000011);
 		result.SAR.index_reg = ((sarbyte >> 3) & 0b00000111);
@@ -436,7 +435,8 @@ void placerm32inarray(modrmm input, filestruct files, char* part2,
 		size = fread(&byte, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
-		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", byte);
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ",
+				byte);
 
 		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[input.modrm_RM_Reg], byte);
@@ -446,8 +446,11 @@ void placerm32inarray(modrmm input, filestruct files, char* part2,
 		size = fread(&dword, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
-		//Need to flip the endianness for the 4 bytes
-		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", ntohl(dword));
+
+		char opcodestring[20];
+		_32bittostring(opcodestring, sizeof(opcodestring), dword);
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%s",
+				opcodestring);
 
 		snprintf(part2, part2size, "[%s + 0x%x]",
 				registerstrings[input.modrm_RM_Reg], dword);
@@ -489,3 +492,25 @@ void displayerroroutput(errorcode code) {
 	printf("Error at location 0x%x\n", totalbytecount);
 }
 
+void _32bittostring(char* string, size_t strsize, u32 opcode) {
+
+	unsigned char bytes[4];
+
+	bytes[0] = (opcode >> 24) & 0xFF;
+	bytes[1] = (opcode >> 16) & 0xFF;
+	bytes[2] = (opcode >> 8) & 0xFF;
+	bytes[3] = opcode & 0xFF;
+
+	snprintf(string, strsize, "%02x %02x %02x %02x ", bytes[3], bytes[2],
+			bytes[1], bytes[0]);
+}
+
+void _16bittostring(char* string, size_t strsize, u16 opcode) {
+
+	unsigned char bytes[2];
+
+	bytes[0] = (opcode >> 8) & 0xFF;
+	bytes[1] = opcode & 0xFF;
+
+	snprintf(string, strsize, "%02x %02x ", bytes[1], bytes[0]);
+}

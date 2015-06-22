@@ -40,8 +40,7 @@ sar SAR;
 #endif
 } modrmm;
 
-typedef enum {
-opcode_eax_imm32,
+typedef enum {opcode_eax_imm32,
 opcode_imm32,
 opcode_imm16,
 opcode_imm8,
@@ -63,6 +62,8 @@ void displayerroroutput(errorcode code);
 void placerm32inarray(modrmm input, filestruct files, char* part2,
 	int part2size);
 void getpart2fromopcode(u8 opcode, char* part2, int part2size);
+void _32bittostring(char* string, size_t strsize, u32 opcode);
+void _16bittostring(char* string, size_t strsize, u16 opcode);
 
 extern u32 totalbytecount;
 extern u32 instructionbytecount;

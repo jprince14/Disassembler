@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <netinet/in.h>
 #include "../include/parse.h"
 

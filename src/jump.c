@@ -8,7 +8,7 @@
 void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		Vector* jumplocations) {
 
-	char printbuffer[50];
+	char printbuffer[120];
 	u32 jumplocation;
 
 	if (type == opcode_rel32) {
@@ -16,15 +16,19 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		size_t size = fread(&rel32, 1, 4, files.in);
 		readerrorcheck(size, 4, files);
 		instructionbytecount += 4;
-		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", ntohl(rel32));
+
+		char opcodestring[20];
+		_32bittostring(opcodestring, sizeof(opcodestring), rel32);
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%s",
+				opcodestring);
 
 		//determine if it is a jump forwards or backwards byt he jump location being read
 		//into a signed 4 byte int (s32)
 
 		jumplocation = totalbytecount + instructionbytecount + rel32;
 
-		snprintf(printbuffer, 40, "%x:\t%s offset_0x%x\n", totalbytecount,
-				opcodename, jumplocation);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s offset_0x%x\n",
+				totalbytecount, g_opcodes, opcodename, jumplocation);
 
 		if (run == findjumps) {
 			insertVector(jumplocations, jumplocation);
@@ -34,12 +38,13 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 		size_t size = fread(&rel8, 1, 1, files.in);
 		readerrorcheck(size, 1, files);
 		instructionbytecount += 1;
-		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%x", rel8);
+		snprintf(g_opcodes + strlen(g_opcodes), sizeof(g_opcodes), "%02x ",
+				rel8);
 
 		jumplocation = totalbytecount + instructionbytecount + rel8;
 
-		snprintf(printbuffer, 40, "%x:\t%s offset_0x%x\n", totalbytecount,
-				opcodename, jumplocation);
+		snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s offset_0x%x\n",
+				totalbytecount, g_opcodes, opcodename, jumplocation);
 
 		if (run == findjumps) {
 			insertVector(jumplocations, jumplocation);
@@ -57,13 +62,13 @@ void jumprel(filestruct files, char* opcodename, opcodetype type, typeofrun run,
 void jumprm32(filestruct files, char* opcodename, modrmm inputmodrmm,
 		typeofrun run, Vector* jumplocations) {
 
-	char printbuffer[50];
+	char printbuffer[120];
 	char part2[20];
 
 	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
-	snprintf(printbuffer, 50, "%x:\t%s %s\n", totalbytecount, opcodename,
-			part2);
+	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n", totalbytecount,
+			opcodename, g_opcodes, part2);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
