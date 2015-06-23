@@ -4,8 +4,6 @@
 #include "Disassembler.h"
 #include "Vector.h"
 
-#include <netinet/in.h>
-
 #define SAR_CODE 0
 
 typedef enum {
@@ -40,8 +38,7 @@ sar SAR;
 #endif
 } modrmm;
 
-typedef enum {
-opcode_eax_imm32,
+typedef enum {opcode_eax_imm32,
 opcode_imm32,
 opcode_imm16,
 opcode_imm8,

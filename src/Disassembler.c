@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netinet/in.h>
 #include "../include/parse.h"
 
 #include "../include/Disassembler.h"
