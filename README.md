@@ -1,6 +1,16 @@
 #x86 Disassembler#
 This Project contains a x86 disassembler that uses a linear sweep.
 
+Compilation:
+To compile keep the .c files in src/ and the .h files in incude/. Run "make" to compile. Another way to compile is to run "gcc –o Disassembler src/*"
+
+Usage:
+The Disassembler runs in command line with a required second argument of the binary file to disassemble and a optional third argument of a file to write the output to. The resulting assembly will always be written to stdout.
+
+Dependencies:
+There are no dependencies other than standard c libraries. This project has been tested on Windows, Linux and Mac.
+
+Scope:
 The assembler only works on a portion of x86. The following mnuematics are supported:
 
   * add
