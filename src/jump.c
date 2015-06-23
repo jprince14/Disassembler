@@ -70,7 +70,7 @@ void jumprm32(filestruct files, char* opcodename, modrmm inputmodrmm,
 	placerm32inarray(inputmodrmm, files, part2, sizeof(part2));
 
 	snprintf(printbuffer, sizeof(printbuffer), "%x:\t%-25s\t%-20s %s\n",
-			totalbytecount, opcodename, g_opcodes, part2);
+			totalbytecount, g_opcodes, opcodename, part2);
 
 	if (run == disassemble) {
 		if (files.outfileused == true) {
