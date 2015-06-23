@@ -32,7 +32,8 @@ void removeElementVector(Vector *vec, int indextodelete) {
 	if (indextodelete < vec->used) {
 		u32* newarray = (u32 *) malloc(vec->size * sizeof(u32));
 
-		for (int x = 0; x < vec->used; x++) {
+		int x;
+		for (x = 0; x < vec->used; x++) {
 			if (x < indextodelete) {
 				newarray[x] = vec->array[x];
 			} else if (x == indextodelete) {
